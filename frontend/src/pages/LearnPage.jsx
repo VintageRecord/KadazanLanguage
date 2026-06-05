@@ -64,7 +64,7 @@ export default function LearnPage() {
   });
 
   return (
-    <main className="min-h-screen bg-cream pt-28">
+    <main className="min-h-screen bg-cream pt-24">
       {/* Header */}
       <div className="bg-forest-900 py-14">
         <div className="max-w-7xl mx-auto px-6">

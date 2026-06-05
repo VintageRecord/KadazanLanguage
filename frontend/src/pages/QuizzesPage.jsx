@@ -37,7 +37,7 @@ export default function QuizzesPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-cream pt-28">
+    <main className="min-h-screen bg-cream pt-24">
       <div className="bg-forest-900 py-14">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="font-display text-4xl font-bold text-white mb-2">Kuiz Interaktif</h1>
