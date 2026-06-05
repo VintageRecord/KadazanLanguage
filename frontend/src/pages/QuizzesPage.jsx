@@ -15,14 +15,24 @@ const DIFF_LABEL = {
 };
 
 const MOCK_QUIZZES = [
-  { id:1, title:'Greetings Matching Quiz',   description:'Match English greetings to their Kadazan equivalents', difficulty:'beginner',     category_name:'Greetings & Courtesy',  question_count:5  },
-  { id:2, title:'Numbers Challenge',          description:'Match numbers 1–10 in Kadazan',                        difficulty:'beginner',     category_name:'Numbers & Counting',    question_count:10 },
-  { id:3, title:'Family Members Quiz',        description:'Identify Kadazan words for family members',            difficulty:'intermediate', category_name:'Family & Relationships', question_count:5  },
-  { id:4, title:'Food & Drink Matching',      description:'Match common food and drink phrases',                  difficulty:'beginner',     category_name:'Food & Drink',           question_count:5  },
-  { id:5, title:'Nature & Environment Quiz',  description:'Match nature words to Kadazan',                       difficulty:'beginner',     category_name:'Nature & Environment',   question_count:5  },
-  { id:6, title:'Daily Life Phrases',         description:'Everyday phrases matching quiz',                       difficulty:'intermediate', category_name:'Daily Life',             question_count:5  },
-  { id:7, title:'Culture & Tradition Quiz',   description:'Match cultural terms to Kadazan equivalents',         difficulty:'intermediate', category_name:'Culture & Tradition',    question_count:5  },
-  { id:8, title:'Mixed Beginner Challenge',   description:'A mix of beginner phrases from all categories',       difficulty:'beginner',     category_name:'All Categories',         question_count:10 },
+  { id:1,  title:'Greetings Matching Quiz',    description:'Match English greetings to their Kadazan equivalents',          difficulty:'beginner',     category_name:'Greetings & Courtesy',  question_count:5  },
+  { id:2,  title:'Numbers Challenge',           description:'Match numbers 1–10 in Kadazan',                                 difficulty:'beginner',     category_name:'Numbers & Counting',    question_count:10 },
+  { id:3,  title:'Family Members Quiz',         description:'Identify Kadazan words for family members',                     difficulty:'intermediate', category_name:'Family & Relationships', question_count:5  },
+  { id:4,  title:'Food & Drink Matching',       description:'Match common food and drink phrases',                           difficulty:'beginner',     category_name:'Food & Drink',           question_count:5  },
+  { id:5,  title:'Nature & Environment Quiz',   description:'Match nature words to Kadazan',                                difficulty:'beginner',     category_name:'Nature & Environment',   question_count:5  },
+  { id:6,  title:'Daily Life Phrases',          description:'Everyday phrases matching quiz',                                difficulty:'intermediate', category_name:'Daily Life',             question_count:5  },
+  { id:7,  title:'Culture & Tradition Quiz',    description:'Match cultural terms to Kadazan equivalents',                  difficulty:'intermediate', category_name:'Culture & Tradition',    question_count:5  },
+  { id:8,  title:'Mixed Beginner Challenge',    description:'A mix of beginner phrases from all categories',                difficulty:'beginner',     category_name:'All Categories',         question_count:10 },
+  { id:9,  title:'Body Parts Quiz',             description:'Match body part names to their Kadazan translations',           difficulty:'beginner',     category_name:'Body & Health',          question_count:8  },
+  { id:10, title:'Colours Challenge',           description:'Can you name colours in Kadazan?',                              difficulty:'beginner',     category_name:'Colours',                question_count:8  },
+  { id:11, title:'Time & Days Quiz',            description:'Match time expressions and days of the week',                  difficulty:'intermediate', category_name:'Time & Days',            question_count:8  },
+  { id:12, title:'Weather Words Quiz',          description:'Match weather conditions in Kadazan',                          difficulty:'beginner',     category_name:'Weather',                question_count:8  },
+  { id:13, title:'Feelings & Emotions Quiz',    description:'Express your emotions in Kadazan',                             difficulty:'intermediate', category_name:'Feelings & Emotions',    question_count:8  },
+  { id:14, title:'Transport & Directions',      description:'Navigate and get around using Kadazan',                        difficulty:'beginner',     category_name:'Transport & Travel',     question_count:8  },
+  { id:15, title:'School Vocabulary Quiz',      description:'Classroom and academic terms in Kadazan',                      difficulty:'beginner',     category_name:'School & Learning',      question_count:6  },
+  { id:16, title:'Market & Shopping Quiz',      description:'Bargain and shop at the Tamu market in Kadazan',               difficulty:'beginner',     category_name:'Market & Shopping',      question_count:7  },
+  { id:17, title:'Advanced Culture Quiz',       description:'Deep-dive into Kadazan cultural and ceremonial vocabulary',    difficulty:'advanced',     category_name:'Culture & Tradition',    question_count:8  },
+  { id:18, title:'Grand Mixed Challenge',       description:'A comprehensive 16-question test spanning all categories',     difficulty:'intermediate', category_name:'All Categories',         question_count:16 },
 ];
 
 export default function QuizzesPage() {
