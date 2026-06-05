@@ -26,36 +26,36 @@ export default function Navbar({ transparent = false }) {
       <nav className={`w-full max-w-5xl rounded-full transition-all duration-300
         bg-forest-900/50 backdrop-blur-md border border-white/10
         ${scrolled ? 'shadow-lg shadow-black/20' : ''}`}>
-        <div className="px-6 h-16 flex items-center justify-between">
+        <div className="px-10 h-20 flex items-center justify-between">
 
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-earth-600 rounded-full flex items-center justify-center
+          <Link to="/" className="flex items-center gap-4 group">
+            <div className="w-14 h-14 bg-earth-600 rounded-full flex items-center justify-center
                             group-hover:bg-earth-500 transition-colors shadow-md">
-              <BookOpen size={20} className="text-white" />
+              <BookOpen size={26} className="text-white" />
             </div>
             <div className="leading-tight">
-              <p className="text-white font-bold text-base">Bahasa Kadazan</p>
-              <p className="text-white/60 text-xs">Penampang</p>
+              <p className="text-white font-bold text-lg">Bahasa Kadazan</p>
+              <p className="text-white/60 text-sm">Penampang</p>
             </div>
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-10">
             {links.map(l => (
               <Link key={l.to} to={l.to}
-                className={`nav-link text-sm ${pathname === l.to ? 'text-white font-semibold' : ''}`}>
+                className={`nav-link text-base ${pathname === l.to ? 'text-white font-semibold' : ''}`}>
                 {l.label}
               </Link>
             ))}
-            <Link to="/learn" className="btn-primary text-sm py-2 px-6">
+            <Link to="/learn" className="btn-primary text-base py-2.5 px-8">
               Mula Belajar
             </Link>
           </div>
 
           {/* Mobile hamburger */}
-          <button className="md:hidden text-white p-1.5" onClick={() => setMenuOpen(o => !o)}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          <button className="md:hidden text-white p-2" onClick={() => setMenuOpen(o => !o)}>
+            {menuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </nav>
