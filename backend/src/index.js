@@ -3,6 +3,7 @@ const express      = require('express');
 const cors         = require('cors');
 const phrasesRoute = require('./routes/phrases');
 const quizzesRoute = require('./routes/quizzes');
+const ttsRoute     = require('./routes/tts');
 const errorHandler = require('./middleware/errorHandler');
 
 const app  = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/phrases', phrasesRoute);
 app.use('/api/quizzes', quizzesRoute);
+app.use('/api/tts',     ttsRoute);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 

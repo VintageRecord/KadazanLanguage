@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getQuiz, getQuizQuestions, validateQuiz } from '../api';
-import { CheckCircle, XCircle, ArrowRight, RotateCcw, ChevronLeft } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowRight, RotateCcw, ChevronLeft, Volume2 } from 'lucide-react';
+import useTTS from '../hooks/useTTS';
 
 /* ── Fallback data (offline / no API) ── */
 const MOCK = {
@@ -218,6 +219,7 @@ export default function QuizPage() {
   const [loading,   setLoading]   = useState(true);
   const [offline,   setOffline]   = useState(false);
   const sessionId = useState(() => crypto.randomUUID())[0];
+  const { speak } = useTTS();
 
   const shuffleOptions = (qs) =>
     qs.map(q => ({ ...q, options: [...q.options].sort(() => Math.random() - 0.5) }));
@@ -340,7 +342,15 @@ export default function QuizPage() {
             <p className="text-xs text-forest-400 uppercase tracking-wide font-semibold mb-2">
               {q.prompt_lang === 'en' ? 'English' : 'Bahasa Malaysia'} → Kadazan
             </p>
-            <h2 className="font-display text-2xl font-bold text-forest-900 mb-8">{q.prompt}</h2>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="font-display text-2xl font-bold text-forest-900">{q.prompt}</h2>
+              <button onClick={() => speak(q.prompt)}
+                title="Dengar sebutan"
+                className="w-9 h-9 rounded-full bg-forest-100 hover:bg-earth-600 hover:text-white
+                           text-forest-600 flex items-center justify-center transition-all shrink-0">
+                <Volume2 size={16} />
+              </button>
+            </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               {q.options.map(opt => (
@@ -387,6 +397,7 @@ export default function QuizPage() {
 function ResultScreen({ quiz, result, onReset }) {
   const pct      = Math.round((result.score / result.total) * 100);
   const resultMap = Object.fromEntries(result.results.map(r => [r.question_id, r]));
+  const { speak } = useTTS();
 
   return (
     <main className="min-h-screen bg-cream pt-24">
@@ -426,6 +437,12 @@ function ResultScreen({ quiz, result, onReset }) {
                   </p>
                 )}
               </div>
+              <button onClick={() => speak(r.correct_answer)}
+                title="Dengar sebutan"
+                className="w-8 h-8 rounded-full bg-forest-100 hover:bg-earth-600 hover:text-white
+                           text-forest-600 flex items-center justify-center transition-all shrink-0">
+                <Volume2 size={14} />
+              </button>
               {r.is_correct
                 ? <CheckCircle size={20} className="text-green-500 shrink-0" />
                 : <XCircle    size={20} className="text-red-400 shrink-0" />}
