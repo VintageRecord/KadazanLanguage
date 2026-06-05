@@ -219,13 +219,16 @@ export default function QuizPage() {
   const [offline,   setOffline]   = useState(false);
   const sessionId = useState(() => crypto.randomUUID())[0];
 
+  const shuffleOptions = (qs) =>
+    qs.map(q => ({ ...q, options: [...q.options].sort(() => Math.random() - 0.5) }));
+
   useEffect(() => {
     Promise.all([getQuiz(id), getQuizQuestions(id)])
-      .then(([q, qs]) => { setQuiz(q); setQuestions(qs); })
+      .then(([q, qs]) => { setQuiz(q); setQuestions(shuffleOptions(qs)); })
       .catch(() => {
         const m = getMock(+id);
         setQuiz(m.quiz);
-        setQuestions(m.questions);
+        setQuestions(shuffleOptions(m.questions));
         setOffline(true);
       })
       .finally(() => setLoading(false));
