@@ -20,15 +20,21 @@ export default function HomePage() {
   return (
     <main>
       {/* ── Hero ── */}
-      <section
-        className="relative min-h-screen flex items-center overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #061f14 0%, #0f4a30 40%, #3e1b07 100%)',
-        }}>
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-forest-900">
 
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+        {/* YouTube background video */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/IozLmk2vUc0?autoplay=1&mute=1&loop=1&playlist=IozLmk2vUc0&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&playsinline=1"
+            title="Sabah background"
+            allow="autoplay; encrypted-media"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{ width: 'max(100vw, 177.78vh)', height: 'max(56.25vw, 100vh)', border: 'none' }}
+          />
+        </div>
+
+        {/* Dark overlay so text stays readable */}
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-900/90 via-forest-900/70 to-forest-900/40" />
 
         <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-16 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
