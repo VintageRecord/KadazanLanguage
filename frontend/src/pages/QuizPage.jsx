@@ -127,7 +127,7 @@ export default function QuizPage() {
   };
 
   if (loading) return (
-    <main className="min-h-screen bg-cream pt-20 flex items-center justify-center">
+    <main className="min-h-screen bg-cream pt-28 flex items-center justify-center">
       <div className="text-forest-600 animate-pulse">Memuatkan kuiz...</div>
     </main>
   );
@@ -138,7 +138,7 @@ export default function QuizPage() {
   const prog = Math.round(((current + 1) / questions.length) * 100);
 
   return (
-    <main className="min-h-screen bg-cream pt-20">
+    <main className="min-h-screen bg-cream pt-28">
       <div className="bg-forest-900 py-10">
         <div className="max-w-3xl mx-auto px-6">
           <Link to="/quizzes" className="text-white/60 hover:text-white text-sm flex items-center gap-1 mb-4">
@@ -237,7 +237,7 @@ function ResultScreen({ quiz, result, onReset }) {
   const resultMap = Object.fromEntries(result.results.map(r => [r.question_id, r]));
 
   return (
-    <main className="min-h-screen bg-cream pt-20">
+    <main className="min-h-screen bg-cream pt-28">
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Score card */}
         <div className={`rounded-3xl p-8 text-center mb-8 shadow-card

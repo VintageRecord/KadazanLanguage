@@ -36,7 +36,7 @@ export default function HomePage() {
         {/* Dark overlay so text stays readable */}
         <div className="absolute inset-0 bg-gradient-to-r from-forest-900/90 via-forest-900/70 to-forest-900/40" />
 
-        <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-16 w-full">
+        <div className="relative max-w-7xl mx-auto px-6 pt-32 pb-16 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
 
             {/* Left: copy */}
