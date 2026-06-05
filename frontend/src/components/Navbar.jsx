@@ -23,7 +23,7 @@ export default function Navbar({ transparent = false }) {
     <div className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 px-4">
 
       {/* ── Pill navbar ── */}
-      <nav className={`w-full max-w-5xl rounded-full transition-all duration-300
+      <nav className={`w-full max-w-7xl rounded-full transition-all duration-300
         bg-forest-900/50 backdrop-blur-md border border-white/10
         ${scrolled ? 'shadow-lg shadow-black/20' : ''}`}>
         <div className="px-10 h-20 flex items-center justify-between">
