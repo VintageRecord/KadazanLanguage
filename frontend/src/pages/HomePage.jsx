@@ -7,7 +7,6 @@ import { getPhrases, getCategories, getQuizzes } from '../api';
 const FEATURES = [
   { icon: <BookOpen size={22} />, title: 'Frasa Harian', desc: 'Pelajari lebih 70 frasa asas dalam bahasa Kadazan Penampang dengan panduan sebutan.' },
   { icon: <Award    size={22} />, title: 'Kuiz Interaktif', desc: 'Uji penguasaan anda melalui kuiz padanan kata yang menyeronokkan dan mencabar.' },
-  { icon: <Users    size={22} />, title: 'Budaya & Tradisi', desc: 'Kenali istilah budaya Kadazan termasuk Kaamatan, Sumazau, dan Lihing.' },
   { icon: <Globe    size={22} />, title: '8 Kategori', desc: 'Pembelajaran terstruktur merangkumi salam, nombor, keluarga, alam, dan lain-lain.' },
 ];
 
