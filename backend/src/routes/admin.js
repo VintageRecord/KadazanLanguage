@@ -28,9 +28,16 @@ router.get('/categories', async (_req, res) => {
 router.post('/categories', async (req, res) => {
   const { slug, name_en, name_ms, description, icon, sort_order } = req.body;
   if (!slug || !name_en) return res.status(400).json({ error: 'slug and name_en are required' });
+
+  let order = sort_order;
+  if (order === undefined || order === null || order === '') {
+    const [[{ maxOrder }]] = await pool.query('SELECT COALESCE(MAX(sort_order), 0) AS maxOrder FROM categories');
+    order = maxOrder + 1;
+  }
+
   const [result] = await pool.query(
     'INSERT INTO categories (slug, name_en, name_ms, description, icon, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
-    [slug, name_en, name_ms || null, description || null, icon || null, sort_order || 0]
+    [slug, name_en, name_ms || null, description || null, icon || null, order]
   );
   res.status(201).json({ id: result.insertId });
 });

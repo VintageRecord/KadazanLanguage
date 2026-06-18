@@ -3,7 +3,7 @@ import { Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDo
 import { adminGetCategories, adminCreateCategory, adminUpdateCategory, adminDeleteCategory } from '../../api';
 import AdminModal from '../../components/admin/AdminModal';
 
-const EMPTY = { slug: '', name_en: '', name_ms: '', description: '', icon: '', sort_order: 0 };
+const EMPTY = { slug: '', name_en: '', name_ms: '', description: '', icon: '', sort_order: '', manualSort: false };
 
 const Field = ({ label, children }) => (
   <div>
@@ -63,7 +63,7 @@ export default function AdminCategories() {
   }, [categories, sortKey, sortDir]);
 
   const openCreate = () => { setForm(EMPTY); setEditTarget(null); setShowModal(true); setError(''); };
-  const openEdit   = (c) => { setForm({ ...c }); setEditTarget(c); setShowModal(true); setError(''); };
+  const openEdit   = (c) => { setForm({ ...c, manualSort: true }); setEditTarget(c); setShowModal(true); setError(''); };
   const closeModal = () => setShowModal(false);
 
   const handleSubmit = async (e) => {
@@ -71,8 +71,11 @@ export default function AdminCategories() {
     setSaving(true);
     setError('');
     try {
-      if (editTarget) await adminUpdateCategory(editTarget.id, form);
-      else            await adminCreateCategory(form);
+      const payload = { ...form };
+      if (!payload.manualSort) delete payload.sort_order;
+      delete payload.manualSort;
+      if (editTarget) await adminUpdateCategory(editTarget.id, payload);
+      else            await adminCreateCategory(payload);
       closeModal();
       load();
     } catch (err) {
@@ -168,11 +171,22 @@ export default function AdminCategories() {
               <AlertCircle size={15} /> {error}
             </div>
           )}
-          <Field label="Slug"><input className={input} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} required /></Field>
+          <Field label="Kata Kunci (Keywords)"><input className={input} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} required /></Field>
           <Field label="Nama (English)"><input className={input} value={form.name_en} onChange={e => setForm(f => ({ ...f, name_en: e.target.value }))} required /></Field>
           <Field label="Nama (Malay)"><input className={input} value={form.name_ms || ''} onChange={e => setForm(f => ({ ...f, name_ms: e.target.value }))} /></Field>
           <Field label="Deskripsi"><input className={input} value={form.description || ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></Field>
-          <Field label="Sort Order"><input type="number" className={input} value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: +e.target.value }))} /></Field>
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input type="checkbox" checked={form.manualSort}
+              onChange={e => setForm(f => ({ ...f, manualSort: e.target.checked, sort_order: e.target.checked ? f.sort_order : '' }))}
+              className="w-4 h-4 rounded accent-earth-600" />
+            <span className="text-sm text-forest-700 font-medium">Tetapkan susunan secara manual</span>
+          </label>
+          {form.manualSort && (
+            <Field label="Sort Order">
+              <input type="number" className={input} value={form.sort_order}
+                onChange={e => setForm(f => ({ ...f, sort_order: +e.target.value }))} />
+            </Field>
+          )}
         </AdminModal>
       )}
     </>
