@@ -24,8 +24,8 @@ router.post('/', async (req, res) => {
 
     const payload = JSON.stringify({
       input:       { text: text.trim() },
-      voice:       { languageCode: 'ms-MY', ssmlGender: 'FEMALE' },
-      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.85, pitch: 0 },
+      voice:       { languageCode: 'id-ID', name: 'id-ID-Wavenet-A', ssmlGender: 'FEMALE' },
+      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.82, pitch: 0 },
     });
 
     const options = {

@@ -16,8 +16,9 @@ export default function useTTS() {
     utt.pitch = 1;
     const applyVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      const malay  = voices.find(v => v.lang.startsWith('ms'));
-      if (malay) utt.voice = malay;
+      const indo   = voices.find(v => v.lang.startsWith('id')) ||
+                     voices.find(v => v.lang.startsWith('ms'));
+      if (indo) utt.voice = indo;
       window.speechSynthesis.speak(utt);
     };
     if (window.speechSynthesis.getVoices().length === 0) {
