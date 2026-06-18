@@ -16,7 +16,6 @@ const input = "w-full px-4 py-2.5 border border-forest-200 rounded-xl text-sm bg
 
 const COLS = [
   { key: 'id',         label: 'ID' },
-  { key: 'slug',       label: 'Slug' },
   { key: 'name_en',    label: 'English' },
   { key: 'name_ms',    label: 'Malay' },
   { key: 'sort_order', label: 'Sort' },
@@ -137,7 +136,6 @@ export default function AdminCategories() {
                 {sorted.map(c => (
                   <tr key={c.id} className="hover:bg-forest-50 transition-colors">
                     <td className="px-4 py-3 text-forest-400">{c.id}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-forest-700">{c.slug}</td>
                     <td className="px-4 py-3 font-medium text-forest-900">{c.name_en}</td>
                     <td className="px-4 py-3 text-forest-600">{c.name_ms}</td>
                     <td className="px-4 py-3 text-forest-500">{c.sort_order}</td>
