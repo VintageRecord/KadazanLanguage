@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Users, Globe, Award, ChevronRight } from 'lucide-react';
 import HeroCarousel from '../components/HeroCarousel';
+import { getPhrases, getCategories, getQuizzes } from '../api';
 
 const FEATURES = [
   { icon: <BookOpen size={22} />, title: 'Frasa Harian', desc: 'Pelajari lebih 70 frasa asas dalam bahasa Kadazan Penampang dengan panduan sebutan.' },
@@ -9,14 +11,25 @@ const FEATURES = [
   { icon: <Globe    size={22} />, title: '8 Kategori', desc: 'Pembelajaran terstruktur merangkumi salam, nombor, keluarga, alam, dan lain-lain.' },
 ];
 
-const STATS = [
-  { value: '70+', label: 'Frasa Asas' },
-  { value: '8',   label: 'Kategori Pelajaran' },
-  { value: '8',   label: 'Kuiz Tersedia' },
-  { value: '100%', label: 'Percuma' },
-];
-
 export default function HomePage() {
+  const [stats, setStats] = useState({
+    phrases: '...', categories: '...', quizzes: '...',
+  });
+
+  useEffect(() => {
+    Promise.all([
+      getPhrases({ limit: 1 }),
+      getCategories(),
+      getQuizzes(),
+    ]).then(([phrasesRes, cats, quizzes]) => {
+      setStats({
+        phrases:    phrasesRes.total,
+        categories: cats.length,
+        quizzes:    quizzes.length,
+      });
+    }).catch(() => {});
+  }, []);
+
   return (
     <main>
       {/* ── Hero ── */}
@@ -102,7 +115,12 @@ export default function HomePage() {
       <section className="bg-cream py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map(s => (
+            {[
+              { value: stats.phrases,    label: 'Frasa Asas' },
+              { value: stats.categories, label: 'Kategori Pelajaran' },
+              { value: stats.quizzes,    label: 'Kuiz Tersedia' },
+              { value: '100%',           label: 'Percuma' },
+            ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="font-display text-4xl font-bold text-earth-600">{s.value}</p>
                 <p className="text-forest-600 text-sm mt-1">{s.label}</p>
