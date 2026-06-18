@@ -5,9 +5,16 @@ const pool    = require('../db/pool');
 // GET /api/quizzes  — list all active quizzes
 router.get('/', async (_req, res) => {
   const [rows] = await pool.query(
-    `SELECT q.id, q.title, q.description, q.difficulty,
+    `SELECT q.id, q.title, q.description, q.difficulty, q.source,
             c.slug AS category_slug, c.name_en AS category_name,
-            (SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id) AS question_count
+            CASE
+              WHEN q.source = 'phrases' THEN (
+                SELECT COUNT(*) FROM phrases p WHERE p.category_id = q.category_id
+              )
+              ELSE (
+                SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id
+              )
+            END AS question_count
      FROM quizzes q
      LEFT JOIN categories c ON c.id = q.category_id
      WHERE q.is_active = 1
@@ -32,15 +39,62 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/questions', async (req, res) => {
   const quizId = req.params.id;
 
+  const [[quiz]] = await pool.query(
+    `SELECT q.id, q.source, q.category_id, q.difficulty
+     FROM quizzes q WHERE q.id = ? AND q.is_active = 1`,
+    [quizId]
+  );
+  if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+
+  // ── Phrase-generated mode ─────────────────────────────────────────────────
+  if (quiz.source === 'phrases') {
+    // Fetch all phrases for this quiz's category as questions
+    const [phrases] = await pool.query(
+      `SELECT id, english, kadazan FROM phrases
+       WHERE category_id = ? ORDER BY id`,
+      [quiz.category_id]
+    );
+    if (!phrases.length) return res.status(404).json({ error: 'No phrases found for this quiz' });
+
+    // Pull a pool of distractor Kadazan words from OTHER categories
+    const [distractorPool] = await pool.query(
+      `SELECT kadazan FROM phrases
+       WHERE category_id != ? AND kadazan IS NOT NULL
+       ORDER BY RAND()
+       LIMIT 60`,
+      [quiz.category_id]
+    );
+    const distractorWords = distractorPool.map(d => d.kadazan);
+
+    const result = phrases.map((p, i) => {
+      // Pick 3 random distractors that aren't the correct answer
+      const pool3 = distractorWords
+        .filter(w => w !== p.kadazan)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+      const options = [p.kadazan, ...pool3].sort(() => Math.random() - 0.5);
+
+      return {
+        id:          `p_${p.id}`,   // prefix to distinguish from manual question ids
+        prompt:      p.english,
+        prompt_lang: 'en',
+        options,
+        sort_order:  i + 1,
+      };
+    });
+
+    return res.json(result);
+  }
+
+  // ── Manual mode (quiz_questions + quiz_distractors) ───────────────────────
   const [questions] = await pool.query(
     `SELECT id, prompt, prompt_lang, sort_order FROM quiz_questions
      WHERE quiz_id = ? ORDER BY sort_order`,
     [quizId]
   );
-
   if (!questions.length) return res.status(404).json({ error: 'No questions found' });
 
-  // For each question, fetch its correct answer + distractors, then shuffle
   const result = await Promise.all(questions.map(async (q) => {
     const [[answerRow]] = await pool.query(
       'SELECT answer FROM quiz_questions WHERE id = ?', [q.id]
@@ -68,13 +122,32 @@ router.post('/:id/validate', async (req, res) => {
     return res.status(400).json({ error: 'answers array required' });
   }
 
-  const ids = answers.map(a => a.question_id);
-  const [rows] = await pool.query(
-    'SELECT id, answer FROM quiz_questions WHERE id IN (?)',
-    [ids]
+  const [[quiz]] = await pool.query(
+    'SELECT source FROM quizzes WHERE id = ?', [req.params.id]
   );
 
-  const correctMap = Object.fromEntries(rows.map(r => [r.id, r.answer]));
+  let correctMap = {};
+
+  if (quiz?.source === 'phrases') {
+    // question ids are like "p_123" — extract the phrase id
+    const phraseIds = answers
+      .map(a => String(a.question_id).replace('p_', ''))
+      .filter(id => /^\d+$/.test(id));
+
+    if (phraseIds.length) {
+      const [rows] = await pool.query(
+        'SELECT id, kadazan FROM phrases WHERE id IN (?)',
+        [phraseIds]
+      );
+      correctMap = Object.fromEntries(rows.map(r => [`p_${r.id}`, r.kadazan]));
+    }
+  } else {
+    const ids = answers.map(a => a.question_id);
+    const [rows] = await pool.query(
+      'SELECT id, answer FROM quiz_questions WHERE id IN (?)', [ids]
+    );
+    correctMap = Object.fromEntries(rows.map(r => [r.id, r.answer]));
+  }
 
   const results = answers.map(({ question_id, selected }) => ({
     question_id,
@@ -85,7 +158,6 @@ router.post('/:id/validate', async (req, res) => {
 
   const score = results.filter(r => r.is_correct).length;
 
-  // Persist progress (session-based)
   const sessionId = req.headers['x-session-id'] || 'anonymous';
   await pool.query(
     'INSERT INTO user_progress (session_id, quiz_id, score, total) VALUES (?, ?, ?, ?)',
