@@ -1,9 +1,15 @@
 const express = require('express');
 const router  = express.Router();
 const https   = require('https');
+const { GoogleAuth } = require('google-auth-library');
+
+const auth = new GoogleAuth({
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+});
 
 // POST /api/tts
-// Body: { text: "Kopivosian", languageCode: "ms-MY" }
+// Body: { text: "Kopivosian" }
 // Returns: { audioContent: "<base64 mp3>" }
 router.post('/', async (req, res) => {
   const { text } = req.body;
@@ -11,43 +17,51 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'text is required' });
   }
 
-  const apiKey = process.env.GOOGLE_TTS_API_KEY;
-  if (!apiKey) {
-    return res.status(503).json({ error: 'TTS API key not configured' });
-  }
+  try {
+    const client      = await auth.getClient();
+    const tokenResult = await client.getAccessToken();
+    const token       = tokenResult.token;
 
-  const payload = JSON.stringify({
-    input:       { text: text.trim() },
-    voice:       { languageCode: 'ms-MY', ssmlGender: 'FEMALE' },
-    audioConfig: { audioEncoding: 'MP3', speakingRate: 0.85, pitch: 0 },
-  });
-
-  const options = {
-    hostname: 'texttospeech.googleapis.com',
-    path:     `/v1/text:synthesize?key=${apiKey}`,
-    method:   'POST',
-    headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) },
-  };
-
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', chunk => { data += chunk; });
-    response.on('end', () => {
-      if (response.statusCode !== 200) {
-        return res.status(response.statusCode).json({ error: 'Google TTS error', detail: data });
-      }
-      try {
-        const parsed = JSON.parse(data);
-        res.json({ audioContent: parsed.audioContent });
-      } catch {
-        res.status(500).json({ error: 'Failed to parse TTS response' });
-      }
+    const payload = JSON.stringify({
+      input:       { text: text.trim() },
+      voice:       { languageCode: 'ms-MY', ssmlGender: 'FEMALE' },
+      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.85, pitch: 0 },
     });
-  });
 
-  request.on('error', (err) => res.status(500).json({ error: err.message }));
-  request.write(payload);
-  request.end();
+    const options = {
+      hostname: 'texttospeech.googleapis.com',
+      path:     '/v1/text:synthesize',
+      method:   'POST',
+      headers:  {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => { data += chunk; });
+      response.on('end', () => {
+        if (response.statusCode !== 200) {
+          return res.status(response.statusCode).json({ error: 'Google TTS error', detail: data });
+        }
+        try {
+          const parsed = JSON.parse(data);
+          res.json({ audioContent: parsed.audioContent });
+        } catch {
+          res.status(500).json({ error: 'Failed to parse TTS response' });
+        }
+      });
+    });
+
+    request.on('error', (err) => res.status(500).json({ error: err.message }));
+    request.write(payload);
+    request.end();
+
+  } catch (err) {
+    res.status(500).json({ error: 'Auth failed', detail: err.message });
+  }
 });
 
 module.exports = router;
