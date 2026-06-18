@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { adminGetCategories, adminCreateCategory, adminUpdateCategory, adminDeleteCategory } from '../../api';
 import AdminModal from '../../components/admin/AdminModal';
 
@@ -14,6 +14,21 @@ const Field = ({ label, children }) => (
 
 const input = "w-full px-4 py-2.5 border border-forest-200 rounded-xl text-sm bg-cream focus:outline-none focus:ring-2 focus:ring-forest-400";
 
+const COLS = [
+  { key: 'id',         label: 'ID' },
+  { key: 'slug',       label: 'Slug' },
+  { key: 'name_en',    label: 'English' },
+  { key: 'name_ms',    label: 'Malay' },
+  { key: 'sort_order', label: 'Sort' },
+];
+
+function SortIcon({ col, sortKey, sortDir }) {
+  if (sortKey !== col) return <ChevronsUpDown size={13} className="ml-1 opacity-30" />;
+  return sortDir === 'asc'
+    ? <ChevronUp size={13} className="ml-1 text-earth-600" />
+    : <ChevronDown size={13} className="ml-1 text-earth-600" />;
+}
+
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -22,6 +37,8 @@ export default function AdminCategories() {
   const [showModal,  setShowModal]  = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [form,       setForm]       = useState(EMPTY);
+  const [sortKey,    setSortKey]    = useState('sort_order');
+  const [sortDir,    setSortDir]    = useState('asc');
 
   const load = () => {
     setLoading(true);
@@ -29,6 +46,22 @@ export default function AdminCategories() {
   };
 
   useEffect(load, []);
+
+  const toggleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
+
+  const sorted = useMemo(() => {
+    return [...categories].sort((a, b) => {
+      const av = a[sortKey] ?? '';
+      const bv = b[sortKey] ?? '';
+      const cmp = typeof av === 'number'
+        ? av - bv
+        : String(av).localeCompare(String(bv));
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [categories, sortKey, sortDir]);
 
   const openCreate = () => { setForm(EMPTY); setEditTarget(null); setShowModal(true); setError(''); };
   const openEdit   = (c) => { setForm({ ...c }); setEditTarget(c); setShowModal(true); setError(''); };
@@ -84,15 +117,24 @@ export default function AdminCategories() {
             <table className="w-full text-sm">
               <thead className="bg-forest-50 border-b border-parchment">
                 <tr>
-                  {['ID', 'Slug', 'English', 'Malay', 'Sort', 'Tindakan'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">
-                      {h}
+                  {COLS.map(col => (
+                    <th key={col.key}
+                      onClick={() => toggleSort(col.key)}
+                      className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide
+                                 cursor-pointer hover:text-forest-800 select-none">
+                      <span className="flex items-center">
+                        {col.label}
+                        <SortIcon col={col.key} sortKey={sortKey} sortDir={sortDir} />
+                      </span>
                     </th>
                   ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">
+                    Tindakan
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-parchment">
-                {categories.map(c => (
+                {sorted.map(c => (
                   <tr key={c.id} className="hover:bg-forest-50 transition-colors">
                     <td className="px-4 py-3 text-forest-400">{c.id}</td>
                     <td className="px-4 py-3 font-mono text-xs text-forest-700">{c.slug}</td>
@@ -101,12 +143,10 @@ export default function AdminCategories() {
                     <td className="px-4 py-3 text-forest-500">{c.sort_order}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-3">
-                        <button onClick={() => openEdit(c)}
-                          className="text-earth-600 hover:text-earth-800 transition-colors">
+                        <button onClick={() => openEdit(c)} className="text-earth-600 hover:text-earth-800 transition-colors">
                           <Pencil size={15} />
                         </button>
-                        <button onClick={() => handleDelete(c)}
-                          className="text-red-400 hover:text-red-600 transition-colors">
+                        <button onClick={() => handleDelete(c)} className="text-red-400 hover:text-red-600 transition-colors">
                           <Trash2 size={15} />
                         </button>
                       </div>

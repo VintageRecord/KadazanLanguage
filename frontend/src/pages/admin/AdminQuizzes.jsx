@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { adminGetQuizzes, adminCreateQuiz, adminUpdateQuiz, adminDeleteQuiz, adminGetCategories } from '../../api';
 import AdminModal from '../../components/admin/AdminModal';
 
@@ -8,6 +8,22 @@ const DIFF_LABEL   = { beginner: 'Asas', intermediate: 'Pertengahan', advanced: 
 const DIFF_COLOR   = { beginner: 'bg-green-100 text-green-700', intermediate: 'bg-yellow-100 text-yellow-700', advanced: 'bg-red-100 text-red-700' };
 
 const EMPTY = { title: '', description: '', difficulty: 'beginner', source: 'phrases', category_id: '', is_active: true };
+
+const COLS = [
+  { key: 'id',            label: 'ID' },
+  { key: 'title',         label: 'Tajuk' },
+  { key: 'difficulty',    label: 'Tahap' },
+  { key: 'category_name', label: 'Kategori' },
+  { key: 'source',        label: 'Sumber' },
+  { key: 'is_active',     label: 'Aktif' },
+];
+
+function SortIcon({ col, sortKey, sortDir }) {
+  if (sortKey !== col) return <ChevronsUpDown size={13} className="ml-1 opacity-30" />;
+  return sortDir === 'asc'
+    ? <ChevronUp size={13} className="ml-1 text-earth-600" />
+    : <ChevronDown size={13} className="ml-1 text-earth-600" />;
+}
 
 const Field = ({ label, children }) => (
   <div>
@@ -26,6 +42,8 @@ export default function AdminQuizzes() {
   const [showModal,  setShowModal]  = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [form,       setForm]       = useState(EMPTY);
+  const [sortKey,    setSortKey]    = useState('id');
+  const [sortDir,    setSortDir]    = useState('asc');
 
   const load = () => {
     setLoading(true);
@@ -34,6 +52,20 @@ export default function AdminQuizzes() {
 
   useEffect(() => { adminGetCategories().then(setCategories); }, []);
   useEffect(load, []);
+
+  const toggleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
+
+  const sorted = useMemo(() => {
+    return [...quizzes].sort((a, b) => {
+      const av = a[sortKey] ?? '';
+      const bv = b[sortKey] ?? '';
+      const cmp = typeof av === 'number' ? av - bv : String(av).localeCompare(String(bv));
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [quizzes, sortKey, sortDir]);
 
   const openCreate = () => { setForm(EMPTY); setEditTarget(null); setShowModal(true); setError(''); };
   const openEdit   = (q) => {
@@ -84,13 +116,20 @@ export default function AdminQuizzes() {
             <table className="w-full text-sm">
               <thead className="bg-forest-50 border-b border-parchment">
                 <tr>
-                  {['ID', 'Tajuk', 'Tahap', 'Kategori', 'Sumber', 'Aktif', 'Tindakan'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">{h}</th>
+                  {COLS.map(col => (
+                    <th key={col.key} onClick={() => toggleSort(col.key)}
+                      className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide cursor-pointer hover:text-forest-800 select-none">
+                      <span className="flex items-center">
+                        {col.label}
+                        <SortIcon col={col.key} sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </th>
                   ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">Tindakan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-parchment">
-                {quizzes.map(q => (
+                {sorted.map(q => (
                   <tr key={q.id} className="hover:bg-forest-50 transition-colors">
                     <td className="px-4 py-3 text-forest-400">{q.id}</td>
                     <td className="px-4 py-3 font-medium text-forest-900 max-w-[200px] truncate">{q.title}</td>

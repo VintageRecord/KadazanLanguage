@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Pencil, Trash2, Search, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import {
   adminGetPhrases, adminCreatePhrase, adminUpdatePhrase, adminDeletePhrase,
   adminGetCategories,
@@ -11,6 +11,22 @@ const DIFF_LABEL   = { beginner: 'Asas', intermediate: 'Pertengahan', advanced: 
 const DIFF_COLOR   = { beginner: 'bg-green-100 text-green-700', intermediate: 'bg-yellow-100 text-yellow-700', advanced: 'bg-red-100 text-red-700' };
 
 const EMPTY = { english: '', malay: '', kadazan: '', romanization: '', audio_url: '', difficulty: 'beginner', notes: '', category_id: '' };
+
+const COLS = [
+  { key: 'id',            label: 'ID' },
+  { key: 'english',       label: 'English' },
+  { key: 'kadazan',       label: 'Kadazan' },
+  { key: 'romanization',  label: 'Romanization' },
+  { key: 'category_name', label: 'Kategori' },
+  { key: 'difficulty',    label: 'Tahap' },
+];
+
+function SortIcon({ col, sortKey, sortDir }) {
+  if (sortKey !== col) return <ChevronsUpDown size={13} className="ml-1 opacity-30" />;
+  return sortDir === 'asc'
+    ? <ChevronUp size={13} className="ml-1 text-earth-600" />
+    : <ChevronDown size={13} className="ml-1 text-earth-600" />;
+}
 
 const Field = ({ label, children }) => (
   <div>
@@ -32,6 +48,8 @@ export default function AdminPhrases() {
   const [showModal,  setShowModal]  = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [form,       setForm]       = useState(EMPTY);
+  const [sortKey,    setSortKey]    = useState('id');
+  const [sortDir,    setSortDir]    = useState('asc');
 
   const load = () => {
     setLoading(true);
@@ -42,6 +60,20 @@ export default function AdminPhrases() {
 
   useEffect(() => { adminGetCategories().then(setCategories); }, []);
   useEffect(load, [search, catFilter, diffFilter]);
+
+  const toggleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
+
+  const sorted = useMemo(() => {
+    return [...phrases].sort((a, b) => {
+      const av = a[sortKey] ?? '';
+      const bv = b[sortKey] ?? '';
+      const cmp = typeof av === 'number' ? av - bv : String(av).localeCompare(String(bv));
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [phrases, sortKey, sortDir]);
 
   const openCreate = () => {
     setForm({ ...EMPTY, category_id: categories[0]?.id || '' });
@@ -114,13 +146,20 @@ export default function AdminPhrases() {
             <table className="w-full text-sm">
               <thead className="bg-forest-50 border-b border-parchment">
                 <tr>
-                  {['ID', 'English', 'Kadazan', 'Romanization', 'Kategori', 'Tahap', 'Tindakan'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">{h}</th>
+                  {COLS.map(col => (
+                    <th key={col.key} onClick={() => toggleSort(col.key)}
+                      className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide cursor-pointer hover:text-forest-800 select-none">
+                      <span className="flex items-center">
+                        {col.label}
+                        <SortIcon col={col.key} sortKey={sortKey} sortDir={sortDir} />
+                      </span>
+                    </th>
                   ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">Tindakan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-parchment">
-                {phrases.map(p => (
+                {sorted.map(p => (
                   <tr key={p.id} className="hover:bg-forest-50 transition-colors">
                     <td className="px-4 py-3 text-forest-400">{p.id}</td>
                     <td className="px-4 py-3 font-medium text-forest-900 max-w-[160px] truncate">{p.english}</td>
