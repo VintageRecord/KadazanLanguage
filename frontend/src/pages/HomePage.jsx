@@ -5,9 +5,9 @@ import HeroCarousel from '../components/HeroCarousel';
 import { getPhrases, getCategories, getQuizzes } from '../api';
 
 const FEATURES = [
-  { icon: <BookOpen size={22} />, title: 'Frasa Harian', desc: 'Pelajari lebih 70 frasa asas dalam bahasa Kadazan Penampang dengan panduan sebutan.' },
-  { icon: <Award    size={22} />, title: 'Kuiz Interaktif', desc: 'Uji penguasaan anda melalui kuiz padanan kata yang menyeronokkan dan mencabar.' },
-  { icon: <Globe    size={22} />, title: '8 Kategori', desc: 'Pembelajaran terstruktur merangkumi salam, nombor, keluarga, alam, dan lain-lain.' },
+  { icon: <BookOpen size={22} />, title: 'Frasa Harian', desc: 'Terokai ratusan frasa bahasa Kadazan Penampang merangkumi pelbagai kategori harian lengkap dengan sebutan.' },
+  { icon: <Award    size={22} />, title: 'Kuiz Interaktif', desc: 'Uji penguasaan anda melalui kuiz padanan kata yang dijana secara automatik daripada pangkalan data frasa.' },
+  { icon: <Globe    size={22} />, title: 'Pelbagai Kategori', desc: 'Pembelajaran terstruktur merangkumi salam, nombor, keluarga, makanan, masa, cuaca, emosi, dan banyak lagi.' },
 ];
 
 export default function HomePage() {
