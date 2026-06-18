@@ -16,9 +16,7 @@ export default function useTTS() {
     utt.pitch = 1;
     const applyVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      const indo   = voices.find(v => v.lang.startsWith('fil')) ||
-                     voices.find(v => v.lang.startsWith('tl'))  ||
-                     voices.find(v => v.lang.startsWith('id'))  ||
+      const indo   = voices.find(v => v.lang.startsWith('id')) ||
                      voices.find(v => v.lang.startsWith('ms'));
       if (indo) utt.voice = indo;
       window.speechSynthesis.speak(utt);
