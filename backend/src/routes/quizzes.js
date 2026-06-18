@@ -11,6 +11,7 @@ router.get('/', async (_req, res) => {
               WHEN q.source = 'phrases' THEN (
                 SELECT COUNT(*) FROM phrases p WHERE p.category_id = q.category_id
               )
+              WHEN q.source = 'mix' THEN 16
               ELSE (
                 SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id
               )
@@ -45,6 +46,38 @@ router.get('/:id/questions', async (req, res) => {
     [quizId]
   );
   if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+
+  // ── Mix mode (random phrases from all categories) ────────────────────────
+  if (quiz.source === 'mix') {
+    const [phrases] = await pool.query(
+      `SELECT id, english, kadazan, category_id FROM phrases
+       WHERE kadazan IS NOT NULL
+       ORDER BY RAND()
+       LIMIT 16`
+    );
+    if (!phrases.length) return res.status(404).json({ error: 'No phrases found' });
+
+    const allKadazan = phrases.map(p => p.kadazan);
+
+    const result = phrases.map((p, i) => {
+      const distractors = allKadazan
+        .filter(w => w !== p.kadazan)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+      const options = [p.kadazan, ...distractors].sort(() => Math.random() - 0.5);
+
+      return {
+        id:          `p_${p.id}`,
+        prompt:      p.english,
+        prompt_lang: 'en',
+        options,
+        sort_order:  i + 1,
+      };
+    });
+
+    return res.json(result);
+  }
 
   // ── Phrase-generated mode ─────────────────────────────────────────────────
   if (quiz.source === 'phrases') {
@@ -128,7 +161,7 @@ router.post('/:id/validate', async (req, res) => {
 
   let correctMap = {};
 
-  if (quiz?.source === 'phrases') {
+  if (quiz?.source === 'phrases' || quiz?.source === 'mix') {
     // question ids are like "p_123" — extract the phrase id
     const phraseIds = answers
       .map(a => String(a.question_id).replace('p_', ''))
