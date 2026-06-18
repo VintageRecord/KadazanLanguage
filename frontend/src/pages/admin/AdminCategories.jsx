@@ -84,7 +84,7 @@ export default function AdminCategories() {
             <table className="w-full text-sm">
               <thead className="bg-forest-50 border-b border-parchment">
                 <tr>
-                  {['ID', 'Slug', 'English', 'Malay', 'Icon', 'Sort', 'Tindakan'].map(h => (
+                  {['ID', 'Slug', 'English', 'Malay', 'Sort', 'Tindakan'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-forest-500 uppercase tracking-wide">
                       {h}
                     </th>
@@ -98,7 +98,6 @@ export default function AdminCategories() {
                     <td className="px-4 py-3 font-mono text-xs text-forest-700">{c.slug}</td>
                     <td className="px-4 py-3 font-medium text-forest-900">{c.name_en}</td>
                     <td className="px-4 py-3 text-forest-600">{c.name_ms}</td>
-                    <td className="px-4 py-3 text-xl">{c.icon}</td>
                     <td className="px-4 py-3 text-forest-500">{c.sort_order}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-3">
@@ -135,10 +134,7 @@ export default function AdminCategories() {
           <Field label="Nama (English)"><input className={input} value={form.name_en} onChange={e => setForm(f => ({ ...f, name_en: e.target.value }))} required /></Field>
           <Field label="Nama (Malay)"><input className={input} value={form.name_ms || ''} onChange={e => setForm(f => ({ ...f, name_ms: e.target.value }))} /></Field>
           <Field label="Deskripsi"><input className={input} value={form.description || ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Icon (emoji)"><input className={input} value={form.icon || ''} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} /></Field>
-            <Field label="Sort Order"><input type="number" className={input} value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: +e.target.value }))} /></Field>
-          </div>
+          <Field label="Sort Order"><input type="number" className={input} value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: +e.target.value }))} /></Field>
         </AdminModal>
       )}
     </>
