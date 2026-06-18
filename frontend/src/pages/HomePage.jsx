@@ -141,7 +141,7 @@ export default function HomePage() {
               secara sistematik dan menyeronokkan.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {FEATURES.map(f => (
               <div key={f.title}
                 className="bg-white rounded-2xl p-6 shadow-glass border border-parchment
